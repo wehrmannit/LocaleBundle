@@ -12,6 +12,7 @@ namespace Lunetics\LocaleBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
 
 /**
  * This pass remove session dependencies
@@ -21,11 +22,17 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
  */
 class RemoveSessionPass implements CompilerPassInterface
 {
+
     public function process(ContainerBuilder $container)
     {
-        if ($container->hasDefinition('session')) {
+        $requestStack = $container->get('request_stack');
+
+        try {
+            $requestStack->getSession();
+        } catch (SessionNotFoundException $exception) {
             return;
         }
+
         $container->removeDefinition('lunetics_locale.session_guesser');
         $container->removeDefinition('lunetics_locale.locale_session');
 
