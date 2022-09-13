@@ -25,15 +25,6 @@ class RemoveSessionPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container)
     {
-        $requestStack = $container->get('request_stack');
-
-        try {
-            $requestStack->getSession();
-        } catch (SessionNotFoundException $exception) {
-            $container->removeDefinition('lunetics_locale.session_guesser');
-        }
         
-        $container->removeDefinition('lunetics_locale.locale_session');
-
     }
 }
