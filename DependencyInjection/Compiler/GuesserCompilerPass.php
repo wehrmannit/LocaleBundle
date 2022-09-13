@@ -13,6 +13,7 @@ namespace Lunetics\LocaleBundle\DependencyInjection\Compiler;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
 
 /**
  * Compilerpass Class
@@ -31,6 +32,7 @@ class GuesserCompilerPass implements CompilerPassInterface
         if (false === $container->hasDefinition('lunetics_locale.guesser_manager')) {
             return;
         }
+        $requestStack = $container->get('request_stack');
 
         $definition = $container->getDefinition('lunetics_locale.guesser_manager');
         $taggedServiceIds = $container->findTaggedServiceIds('lunetics_locale.guesser');
@@ -39,7 +41,18 @@ class GuesserCompilerPass implements CompilerPassInterface
         foreach ($taggedServiceIds as $id => $tagAttributes) {
             foreach ($tagAttributes as $attributes) {
                 if (in_array($attributes['alias'], $neededServices)) {
+
+
+                    if ($attributes['alias'] == 'session') {
+                        try {
+                            $requestStack->getSession();
+                        } catch (SessionNotFoundException $exception) {
+                            continue;
+                        }
+                    }
+
                     $definition->addMethodCall('addGuesser', array(new Reference($id), $attributes["alias"]));
+
                 }
             }
         }
