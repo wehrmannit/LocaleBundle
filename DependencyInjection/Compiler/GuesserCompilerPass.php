@@ -41,6 +41,16 @@ class GuesserCompilerPass implements CompilerPassInterface
         foreach ($taggedServiceIds as $id => $tagAttributes) {
             foreach ($tagAttributes as $attributes) {
                 if (in_array($attributes['alias'], $neededServices)) {
+
+
+                    if ($attributes['alias'] == 'session') {
+                        try {
+                            $requestStack->getSession();
+                        } catch (SessionNotFoundException $exception) {
+                            continue;
+                        }
+                    }
+
                     $definition->addMethodCall('addGuesser', array(new Reference($id), $attributes["alias"]));
 
                 }

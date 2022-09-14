@@ -115,7 +115,7 @@ class LocaleGuesserManager
         $this->preferredLocales = $request->getLanguages();
         foreach ($this->guessingOrder as $guesser) {
             if (null === $this->getGuesser($guesser)) {
-                throw new InvalidConfigurationException(sprintf('Locale guesser service "%s" does not exist.', $guesser));
+                return false;
             }
             $guesserService = $this->getGuesser($guesser);
             $this->logEvent('Locale %s Guessing Service Loaded', ucfirst($guesser));
